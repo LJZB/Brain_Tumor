@@ -1,5 +1,6 @@
 #Ignore Folder
 Brain_Tumor_Data_Set/
 
-#Ignore CSV files
+#Ignore files with certain extension
 *.csv
+*.asv
