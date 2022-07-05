@@ -1,0 +1,5 @@
+#Ignore Folder
+Brain_Tumor_Data_Set/
+
+#Ignore CSV files
+*.csv
