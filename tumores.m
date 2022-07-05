@@ -2,7 +2,7 @@
 clear all, close all, clc
 
 %Carga de la carpeta con imágenes
-brain_tumor_path=imageDatastore('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tumor_Data_Set\Brain_Tumor\*.*');
+brain_tumor_path = imageDatastore('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tumor_Data_Set\Brain_Tumor\*.*');
 brain_tumor_images = readall(brain_tumor_path);
 im = brain_tumor_images{1};
 %% Preprocesamiento: Filtrado
@@ -12,15 +12,35 @@ kappa = 15;
 option = 2;
 % Se utiliza la función anisodiff que realiza una difusión anisotrópica
 % mediante la convolución con matrices de diferencias finitas
-inp = anisodiff(im,num_iter,delta_t,kappa,option);
-inp = uint8(inp);
-inp=imresize(inp,[256,256]);
-if size(inp,3)>1
-    inp=rgb2gray(inp);
+im_anisodiff = anisodiff(im,num_iter,delta_t,kappa,option);
+im_anisodiff = uint8(im_anisodiff);
+im_anisodiff=imresize(im_anisodiff,[256,256]);
+if size(im_anisodiff,3)>1
+    im_anisodiff=rgb2gray(im_anisodiff);
+end
+im_anisodiff = uint8(im_anisodiff);
+figure;
+imshow(im_anisodiff);
+title('Imagen Filtrada','FontSize',10);
+%% Preprocesamiento: Umbralización
+im_binary = imbinarize(im_anisodiff,'adaptive','ForegroundPolarity','dark','Sensitivity',0.1373);
+T = graythresh(im)
+imshow(im_binary)
+%%
+t0=60;
+th=t0+((max(im_anisodiff(:))+min(im_anisodiff(:)))./2);
+for i=1:1:size(im_anisodiff,1)
+    for j=1:1:size(im_anisodiff,2)
+        if im_anisodiff(i,j)>th
+            im_threshold(i,j)=1;
+        else
+            im_threshold(i,j)=0;
+        end
+    end
 end
 figure;
-imshow(inp);
-title('Imagen Filtrada','FontSize',10);
+imshow(im_threshold);
+title('Imagen Umbralizada','FontSize',10);
 %% Preprocesamiento
 % Transformar a escala de grises
 im = brain_tumor_images{1};
