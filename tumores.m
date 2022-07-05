@@ -11,8 +11,11 @@ I = brain_tumor_images{1};
 I = rgb2gray(I);
 
 %% Morfología
-% Erode no sirve
-
+% Otsu Binarization for segmentation
+level = graythresh(I);
+img = im2bw(I,0.26);
+figure, imshow(img);title('Otsu Thresholded Image');
+%%
 I = medfilt2(I);
 figure
 imshow(I);
