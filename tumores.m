@@ -5,7 +5,35 @@ clear all, close all, clc
 brain_tumor_path = imageDatastore('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tumor_Data_Set\Brain_Tumor\*.*');
 brain_tumor_images = readall(brain_tumor_path);
 %%
+im = brain_tumor_images{1};
+figure
+imshow(im)
 
+im_gray = rgb2gray(im);
+im_binary = imbinarize(im_gray,'adaptive','Sensitivity',0.45);
+im_mediafilter = medfilt2(im_binary,[5,5]);
+se_filter = strel('disk', 2);
+im_strel = imclose(im_mediafilter,se_filter);
+figure
+imshow(im_strel)
+
+% Pre-generar una Máscara elíptica
+X_size = size(im,2);
+Y_size = size(im,1);
+X_center = X_size/2;
+Y_center = Y_size/2;
+X_radius = X_center - 40;
+Y_radius = Y_center - 50;
+
+% Crear índices para un plano cartesiano
+[col,row] = meshgrid(1:X_size, 1:Y_size);
+
+% Genera los índices para una elipse, rellena el interior con píxeles
+% blancos
+
+
+
+%%
 %Imagen Original
 im = brain_tumor_images{1};
 subplot(3,3,1)
@@ -38,94 +66,74 @@ subplot(3,3,5)
 imshow(im_threshold);
 title('Imagen Umbralizada', 'FontSize',10);
 
+%Imagen de complemento
+im_complement = bitcmp(im);
+subplot(3,3,6)
+imshow(im_complement)
+title('Imagen de Complemento', 'FontSize',10);
+
+%Imagen con filtro tophat
+se = strel('disk',30);
+im_tophat = imtophat(im_complement,se);
+subplot(3,3,7)
+imshow(im_tophat)
+title('Imagen con Tophat', 'FontSize',10);
+
 %Imagen de máscara
 im_threshold = uint8(im_threshold);
-im_mask = im_adjusted .* im_threshold;
-subplot(3,3,6)
+im_mask = im_filtered + im_tophat;
+subplot(3,3,8)
 imshow(im_mask);
 title('Imagen de Máscara', 'FontSize',10);
 
 impixelinfo;
-%% Preprocesamiento: Filtrado
-num_iter = 10;
-delta_t = 1/7;
-kappa = 15;
-option = 2;
-% Se utiliza la función anisodiff que realiza una difusión anisotrópica
-% mediante la convolución con matrices de diferencias finitas
-im_anisodiff = anisodiff(im,num_iter,delta_t,kappa,option);
-im_anisodiff = uint8(im_anisodiff);
-im_anisodiff=imresize(im_anisodiff,[256,256]);
-if size(im_anisodiff,3)>1
-    im_anisodiff=rgb2gray(im_anisodiff);
-end
-im_anisodiff = uint8(im_anisodiff);
-figure;
-imshow(im_anisodiff);
-title('Imagen Filtrada','FontSize',10);
-%% Preprocesamiento: Umbralización
-im_binary = imbinarize(im_anisodiff,'adaptive','ForegroundPolarity','dark','Sensitivity',0.67);
-T = graythresh(im)
-imshow(im_binary)
 
-%% Preprocesamiento
-% Transformar a escala de grises
-im = brain_tumor_images{1};
-im_gray = rgb2gray(im);
-figure
-imshow(im_gray);
-
-% Filtrado de la imagen
-im_filtered=medfilt2(im_gray);
-figure
-imshow(im_filtered);
-
-%Erosion? Se necesita eliminar lo más posible el borde del cerebro
 %% Detección de características
+my_image = rgb2gray(im_tophat);
 %Brisk
 figure
-points = detectBRISKFeatures(im_filtered);
-imshow(im_filtered);
+points = detectBRISKFeatures(my_image);
+imshow(my_image);
 hold on;
 title('Brisk')
 plot(points.selectStrongest(50));
 
 %Fast
 figure
-points = detectFASTFeatures(im_filtered);
-imshow(im_filtered);
+points = detectFASTFeatures(my_image);
+imshow(my_image);
 hold on;
 title('Fast')
 plot(points.selectStrongest(50));
 
 %Harris
 figure
-points = detectHarrisFeatures(im_filtered);
-imshow(im_filtered);
+points = detectHarrisFeatures(my_image);
+imshow(my_image);
 hold on;
 title('Harris')
 plot(points.selectStrongest(50));
 
 %Kaze
 figure
-points = detectKAZEFeatures(im_filtered);
-imshow(im_filtered);
+points = detectKAZEFeatures(my_image);
+imshow(my_image);
 hold on;
 title('Kaze')
 plot(points.selectStrongest(50));
 
 %MinEigen
 figure
-points = detectMinEigenFeatures(im_filtered);
-imshow(im_filtered);
+points = detectMinEigenFeatures(my_image);
+imshow(my_image);
 hold on;
 title('MinEigen')
 plot(points.selectStrongest(90));
 
 %MSER
 figure
-regions = detectMSERFeatures(im_filtered);
-imshow(im_filtered);
+regions = detectMSERFeatures(my_image);
+imshow(my_image);
 hold on;
 title('MSER')
 plot(regions,'showPixelList',true,'showEllipses',false);
