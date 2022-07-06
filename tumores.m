@@ -6,56 +6,46 @@ brain_tumor_path = imageDatastore('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tu
 brain_tumor_images = readall(brain_tumor_path);
 %% Pre-procesamiento
 im = brain_tumor_images{1};
-figure; imshow(im); title('Imagen original');
+
 % Pre-generar una Máscara elíptica
-% X_size = size(im,2);
-% Y_size = size(im,1);
-% X_center = X_size/2;
-% Y_center = Y_size/2;
-% X_radius = X_center - 0;
-% Y_radius = Y_center - 0;
+X_size = size(im,2);
+Y_size = size(im,1);
+X_center = X_size/2;
+Y_center = Y_size/2;
+X_radius = X_center - 0;
+Y_radius = Y_center - 0;
 
 % Crear índices para un plano cartesiano
-% [col,row] = meshgrid(1:X_size, 1:Y_size);
+[col,row] = meshgrid(1:X_size, 1:Y_size);
 
 % Genera los índices para una elipse, rellena el interior con píxeles
 % blancos
-% mask = ((row - Y_center).^2 ./ Y_radius^2) + ((col - X_center).^2 ./ X_radius^2) <= 1;
-%%
-close all
+mask = ((row - Y_center).^2 ./ Y_radius^2) + ((col - X_center).^2 ./ X_radius^2) <= 1;
+
 % Imagen original
 % figure; imshow(im); title('Imagen original')
 
 % Imagen recortada
-% mask = uint8(mask);
-% im_cropped = im .* mask;
+mask = uint8(mask);
+im_cropped = im .* mask;
 % figure; imshow(im_cropped); title('Imagen recortada')
 
-%%
-
 %Imagen en Gris
-im_gray = rgb2gray(im);
+im_gray = rgb2gray(im_cropped);
 % figure; imshow(im_gray); title('Imagen en Gris', 'FontSize',10);
 
-%Imagen Filtrada
-im_filtered = medfilt2(im_gray);
-% figure; imshow(im_filtered); title('Imagen Filtrada', 'FontSize',10);
-
 %Imagen ajustada en 
-% im_adjusted = imadjust(im_gray,[0.09 0.56],[]);
+im_adjusted = imadjust(im_gray,[0.09 0.56],[]);
 % figure; imshow(im_adjusted); title('Imagen ajustada', 'FontSize',10);
 
-% Imagen binarizada
-im_binary = imbinarize(im_filtered,'adaptive','ForegroundPolarity','bright','Sensitivity',0.4);
-figure; imshow(im_binary); title('Binary Version of Image');
-
-
+%Imagen Filtrada
+im_filtered = medfilt2(im_adjusted);
+% figure; imshow(im_filtered); title('Imagen Filtrada', 'FontSize',10);
 
 %Imagen Umbralizada
 im_threshold = im_filtered <= 110;
 % figure; imshow(im_threshold); title('Imagen Umbralizada', 'FontSize',10);
-
-
+close all
 % Dilatar
 se = strel('square',5)
 im_dilate = imdilate(im_threshold,se);
