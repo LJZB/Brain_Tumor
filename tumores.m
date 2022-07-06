@@ -4,89 +4,68 @@ clear all, close all, clc
 %Carga de la carpeta con imágenes
 brain_tumor_path = imageDatastore('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tumor_Data_Set\Brain_Tumor\*.*');
 brain_tumor_images = readall(brain_tumor_path);
-%%
+%% Pre-procesamiento
 im = brain_tumor_images{1};
-figure
-imshow(im)
-
-im_gray = rgb2gray(im);
-im_binary = imbinarize(im_gray,'adaptive','Sensitivity',0.45);
-im_mediafilter = medfilt2(im_binary,[5,5]);
-se_filter = strel('disk', 2);
-im_strel = imclose(im_mediafilter,se_filter);
-figure
-imshow(im_strel)
 
 % Pre-generar una Máscara elíptica
 X_size = size(im,2);
 Y_size = size(im,1);
 X_center = X_size/2;
 Y_center = Y_size/2;
-X_radius = X_center - 40;
-Y_radius = Y_center - 50;
+X_radius = X_center - 0;
+Y_radius = Y_center - 0;
 
 % Crear índices para un plano cartesiano
 [col,row] = meshgrid(1:X_size, 1:Y_size);
 
 % Genera los índices para una elipse, rellena el interior con píxeles
 % blancos
+mask = ((row - Y_center).^2 ./ Y_radius^2) + ((col - X_center).^2 ./ X_radius^2) <= 1;
 
+% Imagen original
+% figure; imshow(im); title('Imagen original')
 
-
-%%
-%Imagen Original
-im = brain_tumor_images{1};
-subplot(3,3,1)
-imshow(im);
-title('Imagen original', 'FontSize',10);
+% Imagen recortada
+mask = uint8(mask);
+im_cropped = im .* mask;
+% figure; imshow(im_cropped); title('Imagen recortada')
 
 %Imagen en Gris
-im_gray = rgb2gray(im);
-subplot(3,3,2)
-imshow(im_gray);
-title('Imagen en Gris', 'FontSize',10);
+im_gray = rgb2gray(im_cropped);
+% figure; imshow(im_gray); title('Imagen en Gris', 'FontSize',10);
 
-%Imagen ajustada
-im_adjusted = imadjust(im_gray,[0.3 0.6],[]);
-subplot(3,3,3)
-imshow(im_adjusted);
-title('Imagen ajustada', 'FontSize',10);
+%Imagen ajustada en 
+im_adjusted = imadjust(im_gray,[0.09 0.56],[]);
+% figure; imshow(im_adjusted); title('Imagen ajustada', 'FontSize',10);
 
 %Imagen Filtrada
-se = strel('disk',40);
-%im_filtered = imtophat(im_adjusted,se);
 im_filtered = medfilt2(im_adjusted);
-subplot(3,3,4)
-imshow(im_filtered);
-title('Imagen Filtrada', 'FontSize',10);
+% figure; imshow(im_filtered); title('Imagen Filtrada', 'FontSize',10);
 
 %Imagen Umbralizada
 im_threshold = im_filtered <= 110;
-subplot(3,3,5)
-imshow(im_threshold);
-title('Imagen Umbralizada', 'FontSize',10);
+% figure; imshow(im_threshold); title('Imagen Umbralizada', 'FontSize',10);
+close all
+% Dilatar
+se = strel('square',5)
+im_dilate = imdilate(im_threshold,se);
+figure; imshow(im_dilate); title('Imagen dilatada', 'FontSize',10);
 
-%Imagen de complemento
-im_complement = bitcmp(im);
-subplot(3,3,6)
-imshow(im_complement)
-title('Imagen de Complemento', 'FontSize',10);
+% Hallando la mayor área
+im_area = not(im_dilate);
+im_area = im_area - bwareafilt(im_area, 1, 'largest');
+figure; imshow(im_area); title('Imagen Restada1', 'FontSize',10);
 
-%Imagen con filtro tophat
-se = strel('disk',30);
-im_tophat = imtophat(im_complement,se);
-subplot(3,3,7)
-imshow(im_tophat)
-title('Imagen con Tophat', 'FontSize',10);
+% Dilatar
+se = strel('square',3)
+im_dilated = imdilate(im_area,se);
+figure; imshow(im_dilated); title('Imagen dilatada', 'FontSize',10);
 
-%Imagen de máscara
-im_threshold = uint8(im_threshold);
-im_mask = im_filtered + im_tophat;
-subplot(3,3,8)
-imshow(im_mask);
-title('Imagen de Máscara', 'FontSize',10);
-
-impixelinfo;
+%% Búsqueda de centroide principal
+[labeledImage, numberOfBlobs] = bwlabel(im_dilated);
+blobMeasurements = regionprops(labeledImage, 'area', 'Centroid');
+maximum_area_id = find([blobMeasurements.Area]==max([blobMeasurements.Area]));
+my_centroid = blobMeasurements(maximum_area_id).Centroid;
 
 %% Detección de características
 my_image = rgb2gray(im_tophat);
