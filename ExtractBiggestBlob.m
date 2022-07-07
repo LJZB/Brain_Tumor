@@ -1,67 +1,70 @@
-function ExtractBiggestBlob(folder)
-workspace;  % Make sure the workspace panel is showing.
-format long g;
-format compact;
-fontSize = 20;
+function ExtractBiggestBlob(myImage);
+fontSize = 12;
 
-% Read in a standard MATLAB gray scale demo image.
-folder = fullfile(matlabroot, '\toolbox\images\imdemos');
-baseFileName = 'coins.png';
-% Get the full filename, with path prepended.
-fullFileName = fullfile(folder, baseFileName);
-% Check if file exists.
-if ~exist(fullFileName, 'file')
-	% File doesn't exist -- didn't find it there.  Check the search path for it.
-	fullFileName = baseFileName; % No path this time.
-	if ~exist(fullFileName, 'file')
-		% Still didn't find it.  Alert user.
-		errorMessage = sprintf('Error: %s does not exist in the search path folders.', fullFileName);
-		uiwait(warndlg(errorMessage));
-		return;
-	end
-end
-grayImage = imread(fullFileName);
+%% 
+
+% ==================== Propiedades de la ventana ====================
+% Agrandar la figura
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+
+% Quitar el menú de la ventana.
+set(gcf, 'Toolbar', 'none', 'Menu', 'none');
+
+% Agregar un título a la ventana.
+set(gcf, 'Name', ...
+    'Procesamiento Digital de Imágenes 2: Luisa Fernanda Gómez Buitrago - Luis Javier Zuluaga Betancur', ...
+    'NumberTitle', ...
+    'Off')
+drawnow;
+% ====================================================================
+
 % Get the dimensions of the image.
 % numberOfColorBands should be = 1.
 
-[rows, columns, numberOfColorBands] = size(grayImage);
 % Display the original gray scale image.
 subplot(2, 2, 1);
-imshow(grayImage, []);
-title('Original Grayscale Image', 'FontSize', fontSize);
-% Enlarge figure to full screen.
-set(gcf, 'units','normalized','outerposition',[0 0 1 1]);
-% Give a name to the title bar.
-set(gcf,'name','Demo by ImageAnalyst','numbertitle','off')
+imshow(myImage, []);
+title('Imagen Original en Escala de Grises', 'FontSize', fontSize);
 
 % Let's compute and display the histogram.
-[pixelCount, grayLevels] = imhist(grayImage);
+[pixelCount, grayLevels] = imhist(myImage);
 subplot(2, 2, 2);
 bar(pixelCount);
 grid on;
-title('Histogram of original image', 'FontSize', fontSize);
+title('Histograma de la imagen original', 'FontSize', fontSize);
 xlim([0 grayLevels(end)]); % Scale x axis manually.
 
-% Threshold the image to binarize it.
-binaryImage = grayImage > 100;
-% Fill holes
-binaryImage = imfill(binaryImage, 'holes');
-% Display the image.
-subplot(2, 2, 3);
-imshow(binaryImage, []);
-title('Binary Image', 'FontSize', fontSize);
+% Imagen en escala de grises
+im_gray = im2gray(myImage);
 
-% Get all the blob properties.  Can only pass in originalImage in version R2008a and later.
+% Imagen con más contraste
+im_gray = imadjust(im_gray);
+
+% Calcular 2 niveles de Umbral
+thresh = multithresh(im_gray,2);
+
+% Imagen binarizada
+maximum = max(thresh);
+binaryImage = im_gray > maximum;
+
+% Rellenar huecos
+binaryImage = imfill(binaryImage, 'holes');
+subplot(2, 2, 3);imshow(binaryImage, []);title('Binary Image', 'FontSize', fontSize);
+
+% Obtiene todas las propiedades del blob.  Sólo puede pasar en la imagen 
+% original en la versión R2008a y posterior.
 [labeledImage, numberOfBlobs] = bwlabel(binaryImage);
 blobMeasurements = regionprops(labeledImage, 'area', 'Centroid');
-% Get all the areas
-allAreas = [blobMeasurements.Area] % No semicolon so it will print to the command window.
+
+% Obtener las áreas
+allAreas = [blobMeasurements.Area]; % No semicolon so it will print to the command window.
 menuOptions{1} = '0'; % Add option to extract no blobs.
-% Display areas on image
+
+% Mostrar las áreas en la imagen
 for k = 1 : numberOfBlobs           % Loop through all blobs.
 	thisCentroid = [blobMeasurements(k).Centroid(1), blobMeasurements(k).Centroid(2)];
-	message = sprintf('Area = %d', allAreas(k));
-	text(thisCentroid(1), thisCentroid(2), message, 'Color', 'r');
+% 	message = sprintf('Area = %d', allAreas(k));
+% 	text(thisCentroid(1), thisCentroid(2), message, 'Color', 'r');
 	menuOptions{k+1} = sprintf('%d', k);
 end
 
