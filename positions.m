@@ -9,67 +9,65 @@ brain_tumor_path = imageDatastore('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tu
 brain_tumor_images = readall(brain_tumor_path);
 %% Preprocesamiento y gráfica de las imágenes
 
+% ==================== Propiedades de la ventana ====================
+% Agrandar la figura
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+
+% Quitar el menú de la ventana.
+set(gcf, 'Toolbar', 'none', 'Menu', 'none');
+
+% Agregar un título a la ventana.
+set(gcf, 'Name', ...
+    'Procesamiento Digital de Imágenes 2: Luisa Fernanda Gómez Buitrago - Luis Javier Zuluaga Betancur', ...
+    'NumberTitle', ...
+    'Off')
+drawnow;
+
+% ==================== Preprocesamiento ====================
+
 % Imagen de interés
 im = brain_tumor_images{1};
 
 % Imagen en escala de grises
 im_gray = rgb2gray(im);
-subplot(2, 3, 1);
-imshow(im_gray, []);
-title('Imagen En Escala de Grises', 'FontSize', fontSize, 'Interpreter', 'None');
+subplot(2, 3, 1); imshow(im_gray, []); title('Imagen En Escala de Grises', 'FontSize', fontSize, 'Interpreter', 'None');
 axis('on', 'image');
 hp = impixelinfo();
 
-% Histograma de intensidad
-subplot(2, 3, 2);
-imhist(im_gray);
-grid on;
-title('Histograma', 'FontSize', fontSize, 'Interpreter', 'None');
+% Binarización de la imagen
+im_binary01 = im_gray < 82;
 
-% Propiedades de la ventana
-% % Agrandar la figura
-set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
-% Get rid of tool bar and pulldown menus that are along top of figure.
-set(gcf, 'Toolbar', 'none', 'Menu', 'none');
-% Give a name to the title bar.
-set(gcf, 'Name', 'PDI2 - Gómez_Zuluaga', 'NumberTitle', 'Off')
-drawnow;
+% Extraer los bulbos más grandes, y así eliminar los más pequeños causados
+% por ruido
+im_binary01 = bwareafilt(im_binary01, 2);
+subplot(2, 3, 2); imshow(im_binary01, []);title('Imagen Binarizada', 'FontSize', fontSize);
+axis('on', 'image');
 
-%%
-% Binarize the image
-binaryImage = grayImage < 82;
-% Extract only the two largest blobs.  This will take the major ones and ignore small noise blobs.
-binaryImage = bwareafilt(binaryImage, 2);
-% Display the image.
-subplot(2, 3, 3);
-imshow(binaryImage, []);
-title('Two main blobs', 'FontSize', fontSize, 'Interpreter', 'None');
-axis('on', 'image');
-% Label the image so we can take the rightmost one.
-labeledImage = bwlabel(binaryImage);
-% Take the right most one.  It will have the label 2.
-binaryImage = labeledImage == 2;
-% Fill holes
-binaryImage = imfill(binaryImage, 'holes');
-% Display the image.
-subplot(2, 3, 4);
-imshow(binaryImage, []);
-title('Rightmost Blob', 'FontSize', fontSize, 'Interpreter', 'None');
-axis('on', 'image');
-% Use it to zero out the other parts of the image.
-grayImage(~binaryImage) = 0;
-% Display the image.
-subplot(2, 3, 5);
-imshow(grayImage, []);
-title('Masked gray image', 'FontSize', fontSize, 'Interpreter', 'None');
-axis('on', 'image');
+% Etiquetar la imagen para poder encontrar el bulbo requerido
+labeledImage = bwlabel(im_binary01)
+
+% Escoger la etiqueta del área ???
+im_binary01 = labeledImage == 3;
+
+% Rellenar huecos
+im_mask = imfill(im_binary01, 'holes');
+subplot(2, 3, 3); imshow(im_mask, []); title('Máscara sin cráneo', 'FontSize', fontSize, 'Interpreter', 'None'); axis('on', 'image');
+
+% Aplicar máscara
+im_gray(~im_mask) = 0; 
+subplot(2, 3, 4);imshow(im_gray, []);title('Imagen con Máscara', 'FontSize', fontSize, 'Interpreter', 'None');axis('on', 'image');
 hp = impixelinfo();
-% Get a new binary image of just the letters
-lettersMask = grayImage > 86;
-% Fill holes
-lettersMask = imfill(lettersMask, 'holes');
-% Take largest blob only.
+
+% Binarización 02
+im_binary02 = im_gray > 86;
+
+% Rellenar huecos
+lettersMask = imfill(im_binary02, 'holes');
+subplot(2, 3, 5); imshow(lettersMask, [])
+
+% Tomar el bulbo más grande ????
 lettersMask = bwareafilt(lettersMask, 1);
+
 % Take convex hull
 lettersMask = bwconvhull(lettersMask);
 % Display the image.
@@ -78,9 +76,11 @@ imshow(lettersMask, []);
 title('Masked gray image', 'FontSize', fontSize, 'Interpreter', 'None');
 axis('on', 'image');
 hp = impixelinfo();
+
 % Measure blobs
 props = regionprops(lettersMask, 'Centroid', 'BoundingBox');
 xy = props.Centroid
+
 % Put a red cross at the centroid.
 hold on;
 plot(xy(1), xy(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
