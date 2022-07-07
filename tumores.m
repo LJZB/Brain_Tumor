@@ -5,32 +5,17 @@ clear all, close all, clc
 brain_tumor_path = imageDatastore('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tumor_Data_Set\Brain_Tumor\*.*');
 brain_tumor_images = readall(brain_tumor_path);
 %% Carga de una imagen de muestra
-im = brain_tumor_images{1};
+im = brain_tumor_images{2};
 % figure; imshow(im); title('Imagen original')
-%% Pre-generar una Máscara elíptica (¿Borrar esta sección?
-% X_size = size(im,2);
-% Y_size = size(im,1);
-% X_center = X_size/2;
-% Y_center = Y_size/2;
-% X_radius = X_center - 0;
-% Y_radius = Y_center - 0;
 
-% Crear índices para un plano cartesiano
-% [col,row] = meshgrid(1:X_size, 1:Y_size);
-
-% Genera los índices para una elipse, rellena el interior con píxeles
-% blancos
-% mask = ((row - Y_center).^2 ./ Y_radius^2) + ((col - X_center).^2 ./ X_radius^2) <= 1;
-
-% Imagen recortada
-% mask = uint8(mask);
-% im_cropped = im .* mask;
-% figure; imshow(im_cropped); title('Imagen recortada')
-
-%% Preprocesamiento 
+% Preprocesamiento 
 
 %Imagen en Gris
-im_gray = rgb2gray(im);
+try
+    im_gray = rgb2gray(im);
+catch
+    im_gray = im2gray(im);
+end
 figure; imshow(im_gray); title('Imagen en Gris', 'FontSize',10);
 
 %Imagen ajustada en 
