@@ -22,17 +22,18 @@ drawnow;
 % numberOfColorBands should be = 1.
 
 % Display the original gray scale image.
-subplot(2, 2, 1);
+subplot(1, 2, 1);
 imshow(myImage, []);
 title('Imagen Original en Escala de Grises', 'FontSize', fontSize);
 
 % Let's compute and display the histogram.
-[pixelCount, grayLevels] = imhist(myImage);
-subplot(2, 2, 2);
-bar(pixelCount);
-grid on;
-title('Histograma de la imagen original', 'FontSize', fontSize);
-xlim([0 grayLevels(end)]); % Scale x axis manually.
+% %
+% [pixelCount, grayLevels] = imhist(myImage);
+% subplot(2, 2, 2);
+% bar(pixelCount);
+% grid on;
+% title('Histograma de la imagen original', 'FontSize', fontSize);
+% xlim([0 grayLevels(end)]); % Scale x axis manually.
 
 % Imagen en escala de grises
 im_gray = im2gray(myImage);
@@ -49,7 +50,7 @@ binaryImage = im_gray > maximum;
 
 % Rellenar huecos
 binaryImage = imfill(binaryImage, 'holes');
-subplot(2, 2, 3);imshow(binaryImage, []);title('Binary Image', 'FontSize', fontSize);
+% subplot(1, 2, 3);imshow(binaryImage, []);title('Binary Image', 'FontSize', fontSize);
 
 % Obtiene todas las propiedades del blob.  Sólo puede pasar en la imagen 
 % original en la versión R2008a y posterior.
@@ -69,19 +70,24 @@ for k = 1 : numberOfBlobs           % Loop through all blobs.
 end
 
 % Ask user how many blobs to extract.
-numberToExtract = menu('How many do you want to extract', menuOptions) - 1;
+% numberToExtract = menu('How many do you want to extract', menuOptions) - 1;
+numberToExtract = 1;
 
 % Ask user if they want the smallest or largest blobs.
-promptMessage = sprintf('Do you want the %d largest, or %d smallest, blobs?',...
-	numberToExtract, numberToExtract);
-titleBarCaption = 'Largest or Smallest?';
-sizeOption = questdlg(promptMessage, titleBarCaption, 'Largest', 'Smallest', 'Cancel', 'Largest');
-if strcmpi(sizeOption, 'Cancel')
-	return;
-elseif strcmpi(sizeOption, 'Smallest')
-	% If they want the smallest, make the number negative.
-	numberToExtract = -numberToExtract;
-end
+
+% promptMessage = sprintf('Do you want the %d largest, or %d smallest, blobs?',...
+% 	numberToExtract, numberToExtract);
+% titleBarCaption = 'Largest or Smallest?';
+% sizeOption = questdlg(promptMessage, titleBarCaption, 'Largest', 'Smallest', 'Cancel', 'Largest');
+
+% if strcmpi(sizeOption, 'Cancel')
+% 	return;
+% elseif strcmpi(sizeOption, 'Smallest')
+% 	% If they want the smallest, make the number negative.
+% 	numberToExtract = -numberToExtract;
+% end
+
+sizeOption = 'Largest';
 
 %---------------------------------------------------------------------------
 % Extract the largest area using our custom function ExtractNLargestBlobs().
@@ -90,8 +96,8 @@ biggestBlob = ExtractNLargestBlobs(binaryImage, numberToExtract);
 %---------------------------------------------------------------------------
 
 % Display the image.
-subplot(2, 2, 4);
-imshow(biggestBlob, []);
+subplot(1, 2, 2);
+imshow(biggestBlob, []); title('Región del Tumor', 'FontSize', fontSize);
 % Make the number positive again.  We don't need it negative for smallest extraction anymore.
 numberToExtract = abs(numberToExtract);
 if numberToExtract == 1
@@ -101,8 +107,7 @@ elseif numberToExtract > 1
 else % It's zero
 	caption = sprintf('Extracted 0 Blobs.');
 end
-title(caption, 'FontSize', fontSize);
-msgbox('Done with demo!');
+
 
 % Function to return the specified number of largest or smallest blobs in a binary image.
 % If numberToExtract > 0 it returns the numberToExtract largest blobs.
