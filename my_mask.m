@@ -2,7 +2,7 @@
 close all
 clc
 
-im = imread('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tumor_Data_Set\Brain_Tumor\Cancer (901).JPG');
+im = imread('D:\Users\Luis\Documents\MATLAB\tumor\Brain_Tumor_Data_Set\Brain_Tumor\Cancer (420).JPG');
 
 % Máscara elíptica
 X_size = size(im,2);
@@ -227,13 +227,49 @@ Y_center = Y_size/2;
 %         Y_radius = Y_center - 1.8*Y_center;
 %     end
 % end
+% 
+% if X_size==300
+%     if Y_size==349
+%         X_radius = X_center - 1.84*X_center;
+%         Y_radius = Y_center - 1.85*Y_center;
+%     end
+% end
+% 
+% if X_size==300
+%     if Y_size==353
+%         X_radius = X_center - 1.7*X_center;
+%         Y_radius = Y_center - 1.85*Y_center;
+%     end
+% end
+% 
+% if X_size==306
+%     if Y_size==365
+%         X_radius = X_center - 1.8*X_center;
+%         Y_radius = Y_center - 1.85*Y_center;
+%     end
+% end
+% 
+% if X_size==310
+%     if Y_size==380
+%         X_radius = X_center - 2*X_center;
+%         Y_radius = Y_center - 1.8*Y_center;
+%     end
+% end
 
-if X_size==300
-    if Y_size==349
-        X_radius = X_center - 1.84*X_center;
-        Y_radius = Y_center - 1.85*Y_center;
+% if X_size==314
+%     if Y_size==340
+%         X_radius = X_center - 2*X_center;
+%         Y_radius = Y_center - 1.9*Y_center;
+%     end
+% end
+
+if X_size==315
+    if Y_size==350
+        X_radius = X_center - 2*X_center;
+        Y_radius = Y_center - 1.9*Y_center;
     end
 end
+
 [col,row] = meshgrid(1:X_size, 1:Y_size);
 mask = ((row - Y_center).^2 ./ Y_radius^2) + ((col - X_center).^2 ./ X_radius^2) <= 1;
 mask = uint8(mask);
