@@ -1,39 +1,13 @@
-function ExtractBiggestBlob(myImage);
+function ExtractBiggestBlob(myImage)
 fontSize = 12;
-
-%% 
-
-% ==================== Propiedades de la ventana ====================
-% Agrandar la figura
-set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
-
-% Quitar el menú de la ventana.
-set(gcf, 'Toolbar', 'none', 'Menu', 'none');
-
-% Agregar un título a la ventana.
-set(gcf, 'Name', ...
-    'Procesamiento Digital de Imágenes 2: Luisa Fernanda Gómez Buitrago - Luis Javier Zuluaga Betancur', ...
-    'NumberTitle', ...
-    'Off')
-drawnow;
-% ====================================================================
 
 % Get the dimensions of the image.
 % numberOfColorBands should be = 1.
 
 % Display the original gray scale image.
-subplot(1, 2, 1);
-imshow(myImage, []);
-title('Imagen Original en Escala de Grises', 'FontSize', fontSize);
-
-% Let's compute and display the histogram.
-% %
-% [pixelCount, grayLevels] = imhist(myImage);
-% subplot(2, 2, 2);
-% bar(pixelCount);
-% grid on;
-% title('Histograma de la imagen original', 'FontSize', fontSize);
-% xlim([0 grayLevels(end)]); % Scale x axis manually.
+% subplot(1, 2, 1);
+% imshow(myImage, []);
+% title('Imagen Original en Escala de Grises', 'FontSize', fontSize);
 
 % Imagen en escala de grises
 im_gray = im2gray(myImage);
@@ -70,23 +44,9 @@ for k = 1 : numberOfBlobs           % Loop through all blobs.
 end
 
 % Ask user how many blobs to extract.
-% numberToExtract = menu('How many do you want to extract', menuOptions) - 1;
 numberToExtract = 1;
 
 % Ask user if they want the smallest or largest blobs.
-
-% promptMessage = sprintf('Do you want the %d largest, or %d smallest, blobs?',...
-% 	numberToExtract, numberToExtract);
-% titleBarCaption = 'Largest or Smallest?';
-% sizeOption = questdlg(promptMessage, titleBarCaption, 'Largest', 'Smallest', 'Cancel', 'Largest');
-
-% if strcmpi(sizeOption, 'Cancel')
-% 	return;
-% elseif strcmpi(sizeOption, 'Smallest')
-% 	% If they want the smallest, make the number negative.
-% 	numberToExtract = -numberToExtract;
-% end
-
 sizeOption = 'Largest';
 
 %---------------------------------------------------------------------------
@@ -109,17 +69,12 @@ else % It's zero
 end
 
 
-% Function to return the specified number of largest or smallest blobs in a binary image.
-% If numberToExtract > 0 it returns the numberToExtract largest blobs.
-% If numberToExtract < 0 it returns the numberToExtract smallest blobs.
-% Example: return a binary image with only the largest blob:
-%   binaryImage = ExtractNLargestBlobs(binaryImage, 1)
-% Example: return a binary image with the 3 smallest blobs:
-%   binaryImage = ExtractNLargestBlobs(binaryImage, -3)
 function binaryImage = ExtractNLargestBlobs(binaryImage, numberToExtract)
 try
 	% Get all the blob properties.  Can only pass in originalImage in version R2008a and later.
 	[labeledImage, numberOfBlobs] = bwlabel(binaryImage);
+    labeledImage
+    numberOfBlobs
 	blobMeasurements = regionprops(labeledImage, 'area');
 	% Get all the areas
 	allAreas = [blobMeasurements.Area];
