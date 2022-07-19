@@ -1,4 +1,4 @@
-function ExtractBiggestBlob(myImage)
+function biggestBlob = ExtractBiggestBlob(myImage)
 fontSize = 12;
 
 % Get the dimensions of the image.
@@ -47,7 +47,7 @@ end
 numberToExtract = 1;
 
 % Ask user if they want the smallest or largest blobs.
-sizeOption = 'Largest';
+% sizeOption = 'Largest';
 
 %---------------------------------------------------------------------------
 % Extract the largest area using our custom function ExtractNLargestBlobs().
@@ -56,25 +56,25 @@ biggestBlob = ExtractNLargestBlobs(binaryImage, numberToExtract);
 %---------------------------------------------------------------------------
 
 % Display the image.
-subplot(1, 2, 2);
-imshow(biggestBlob, []); title('Región del Tumor', 'FontSize', fontSize);
+% subplot(1, 2, 2);
+% imshow(biggestBlob, []); title('Región del Tumor', 'FontSize', fontSize);
 % Make the number positive again.  We don't need it negative for smallest extraction anymore.
-numberToExtract = abs(numberToExtract);
-if numberToExtract == 1
-	caption = sprintf('Extracted %s Blob', sizeOption);
-elseif numberToExtract > 1
-	caption = sprintf('Extracted %d %s Blobs', numberToExtract, sizeOption);
-else % It's zero
-	caption = sprintf('Extracted 0 Blobs.');
-end
+% numberToExtract = abs(numberToExtract);
+% if numberToExtract == 1
+% 	caption = sprintf('Extracted %s Blob', sizeOption);
+% elseif numberToExtract > 1
+% 	caption = sprintf('Extracted %d %s Blobs', numberToExtract, sizeOption);
+% else % It's zero
+% 	caption = sprintf('Extracted 0 Blobs.');
+% end
 
 
 function binaryImage = ExtractNLargestBlobs(binaryImage, numberToExtract)
 try
 	% Get all the blob properties.  Can only pass in originalImage in version R2008a and later.
 	[labeledImage, numberOfBlobs] = bwlabel(binaryImage);
-    labeledImage
-    numberOfBlobs
+%     labeledImage;
+%     numberOfBlobs;
 	blobMeasurements = regionprops(labeledImage, 'area');
 	% Get all the areas
 	allAreas = [blobMeasurements.Area];

@@ -1,4 +1,4 @@
-function [im_cropped] = my_mask(im)
+function [im_cropped,mask] = mask_function(im)
 
     % Máscara elíptica
     X_size = size(im,2);

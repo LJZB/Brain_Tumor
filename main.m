@@ -34,7 +34,7 @@ fullFileNames = vertcat(brain_tumor_path.Files);
 brain_tumor_images = readall(brain_tumor_path);
 
 %%
-for i = 1:10
+for i = 1:1
 
     %----------------------3. Propiedades De Ventana---------------------%
     % Agrandar la figura
@@ -54,15 +54,17 @@ for i = 1:10
 
     % Escoger imagen del dataset
     im = brain_tumor_images{i};
-    subplot(221); imshow(im, []);title('Imagen original', 'FontSize', fontSize);axis('on', 'image');
+    subplot(231); imshow(im, []);title('Imagen original', 'FontSize', fontSize);axis('on', 'image');
     hp = impixelinfo();
     
-    % Imagen con máscara
-    im_masked = my_mask(im);
-    
-    % Imagen original en escala de grises
+    % Máscara e imagen con máscara
+    [im_masked, my_mask] = mask_function(im);
+    subplot(232); imshow(my_mask, []);title('Máscara', 'FontSize', fontSize);axis('on', 'image');
+    hp = impixelinfo();
+
+    % Imagen original en escala de grises con máscara
     im_gray = im2gray(im_masked);
-    subplot(222); imshow(im_gray, []);title('Imagen en escala de grises con Máscara', 'FontSize', fontSize);axis('on', 'image');
+    subplot(233); imshow(im_gray, []);title('Imagen en escala de grises con Máscara', 'FontSize', fontSize);axis('on', 'image');
     hp = impixelinfo();
     
     % Calcular 2 niveles de Umbral
@@ -77,13 +79,20 @@ for i = 1:10
     
     % Segmentar la imagen en 2 niveles
     im_segmented = imquantize(im_gray,thresh);
-    subplot(223);
+    subplot(234);
     imshow(im_segmented, []);title('Imagen con dos niveles de gris', 'FontSize', fontSize);axis('on', 'image');
     
+    % Redimensión de la imagen
     im_resized = imresize(im_gray,[125 125]);
     
+
+    imageROI = ExtractBiggestBlob(im_masked);
+    imageROI = imresize(imageROI,[125 125]);
+    subplot(235);
+    imshow(imageROI, []);title('Región de Posible Tumor', 'FontSize', fontSize);axis('on', 'image');
+
     [featureVector,hogVisualization] = extractHOGFeatures(im_resized);
-    subplot(224);
+    subplot(236);
     imshow(im_resized, []);title('Extracción con HOG', 'FontSize', fontSize);axis('on', 'image');
     hold on
     plot(hogVisualization);
