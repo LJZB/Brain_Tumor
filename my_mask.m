@@ -396,7 +396,7 @@ function [im_cropped] = my_mask(im)
         end
     end
     
-    % 512x512 no funciona con todas
+
     if X_size==512
         if Y_size==512
             X_radius = X_center - 1.5*X_center;
