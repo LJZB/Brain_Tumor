@@ -34,7 +34,7 @@ fullFileNames = vertcat(brain_tumor_path.Files);
 brain_tumor_images = readall(brain_tumor_path);
 
 %%
-for i = 1:10
+for i = 1:5
 
     %----------------------3. Propiedades De Ventana---------------------%
     % Agrandar la figura
