@@ -1,5 +1,5 @@
-function biggestBlob = ExtractBiggestBlob(myImage)
-fontSize = 12;
+function biggestBlob = ExtractBiggestBlob(binaryImage)
+% fontSize = 12;
 
 % Get the dimensions of the image.
 % numberOfColorBands should be = 1.
@@ -8,19 +8,19 @@ fontSize = 12;
 % subplot(1, 2, 1);
 % imshow(myImage, []);
 % title('Imagen Original en Escala de Grises', 'FontSize', fontSize);
-
-% Imagen en escala de grises
-im_gray = im2gray(myImage);
-
-% Imagen con más contraste
-im_gray = imadjust(im_gray);
-
-% Calcular 2 niveles de Umbral
-thresh = multithresh(im_gray,2);
+% 
+% % Imagen en escala de grises
+% im_gray = im2gray(myImage);
+% 
+% % Imagen con más contraste
+% im_gray = imadjust(im_gray);
+% 
+% % Calcular 2 niveles de Umbral
+% thresh = multithresh(im_gray,2);
 
 % Imagen binarizada
-maximum = max(thresh);
-binaryImage = im_gray > maximum;
+% maximum = max(thresh);
+% binaryImage = im_gray > maximum;
 
 % Rellenar huecos
 binaryImage = imfill(binaryImage, 'holes');
@@ -28,22 +28,22 @@ binaryImage = imfill(binaryImage, 'holes');
 
 % Obtiene todas las propiedades del blob.  Sólo puede pasar en la imagen 
 % original en la versión R2008a y posterior.
-[labeledImage, numberOfBlobs] = bwlabel(binaryImage);
-blobMeasurements = regionprops(labeledImage, 'area', 'Centroid');
+% [labeledImage, numberOfBlobs] = bwlabel(binaryImage);
+% blobMeasurements = regionprops(labeledImage, 'area', 'Centroid');
 
 % Obtener las áreas
-allAreas = [blobMeasurements.Area]; % No semicolon so it will print to the command window.
-menuOptions{1} = '0'; % Add option to extract no blobs.
+% allAreas = [blobMeasurements.Area]; % No semicolon so it will print to the command window.
+% menuOptions{1} = '0'; % Add option to extract no blobs.
 
 % Mostrar las áreas en la imagen
-for k = 1 : numberOfBlobs           % Loop through all blobs.
-	thisCentroid = [blobMeasurements(k).Centroid(1), blobMeasurements(k).Centroid(2)];
+% for k = 1 : numberOfBlobs           % Loop through all blobs.
+% 	thisCentroid = [blobMeasurements(k).Centroid(1), blobMeasurements(k).Centroid(2)];
 % 	message = sprintf('Area = %d', allAreas(k));
 % 	text(thisCentroid(1), thisCentroid(2), message, 'Color', 'r');
-	menuOptions{k+1} = sprintf('%d', k);
-end
+% 	menuOptions{k+1} = sprintf('%d', k);
+% end
 
-% Ask user how many blobs to extract.
+% Número de .
 numberToExtract = 1;
 
 % Ask user if they want the smallest or largest blobs.
@@ -72,7 +72,7 @@ biggestBlob = ExtractNLargestBlobs(binaryImage, numberToExtract);
 function binaryImage = ExtractNLargestBlobs(binaryImage, numberToExtract)
 try
 	% Get all the blob properties.  Can only pass in originalImage in version R2008a and later.
-	[labeledImage, numberOfBlobs] = bwlabel(binaryImage);
+	[labeledImage, ~] = bwlabel(binaryImage);
 %     labeledImage;
 %     numberOfBlobs;
 	blobMeasurements = regionprops(labeledImage, 'area');
@@ -81,11 +81,11 @@ try
 	if numberToExtract > 0
 		% For positive numbers, sort in order of largest to smallest.
 		% Sort them.
-		[sortedAreas, sortIndexes] = sort(allAreas, 'descend');
+		[~, sortIndexes] = sort(allAreas, 'descend');
 	elseif numberToExtract < 0
 		% For negative numbers, sort in order of smallest to largest.
 		% Sort them.
-		[sortedAreas, sortIndexes] = sort(allAreas, 'ascend');
+		[~, sortIndexes] = sort(allAreas, 'ascend');
 		% Need to negate numberToExtract so we can use it in sortIndexes later.
 		numberToExtract = -numberToExtract;
 	else

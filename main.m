@@ -34,7 +34,7 @@ fullFileNames = vertcat(brain_tumor_path.Files);
 brain_tumor_images = readall(brain_tumor_path);
 
 %%
-for i = 1:1
+for i = 1:10
 
     %----------------------3. Propiedades De Ventana---------------------%
     % Agrandar la figura
@@ -85,9 +85,8 @@ for i = 1:1
     % Redimensión de la imagen
     im_resized = imresize(im_gray,[125 125]);
     
-
-    imageROI = ExtractBiggestBlob(im_masked);
-    imageROI = imresize(imageROI,[125 125]);
+    % Región de Interés buscando áreas
+    imageROI = ExtractBiggestBlob(im_binary);
     subplot(235);
     imshow(imageROI, []);title('Región de Posible Tumor', 'FontSize', fontSize);axis('on', 'image');
 
@@ -98,7 +97,7 @@ for i = 1:1
     plot(hogVisualization);
     [folder, baseFileNameNoExt, ext] = fileparts(fullFileNames{i});
     writematrix(featureVector,strcat(folder,'\Features\',baseFileNameNoExt,'.csv'))
-
+    pause()
 end
 
 %--------------------------------------------------------------------%
