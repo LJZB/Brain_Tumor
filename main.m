@@ -34,7 +34,8 @@ fullFileNames = vertcat(brain_tumor_path.Files);
 brain_tumor_images = readall(brain_tumor_path);
 
 %%
-for i = 1:5
+% Este ciclo será para iterar sobre el imageDatastore
+for i = 1:1
 
     %----------------------3. Propiedades De Ventana---------------------%
     % Agrandar la figura
@@ -90,14 +91,14 @@ for i = 1:5
     subplot(235);
     imshow(imageROI, []);title('Región de Posible Tumor', 'FontSize', fontSize);axis('on', 'image');
 
-    [featureVector,hogVisualization] = extractHOGFeatures(im_resized);
+    [featureVector,hogVisualization] = extractHOGFeatures(im_resized,'CellSize',[5 5]);
     subplot(236);
     imshow(im_resized, []);title('Extracción con HOG', 'FontSize', fontSize);axis('on', 'image');
     hold on
     plot(hogVisualization);
     [folder, baseFileNameNoExt, ext] = fileparts(fullFileNames{i});
     writematrix(featureVector,strcat(folder,'\Features\',baseFileNameNoExt,'.csv'))
-    pause()
+%     pause()
 end
 
 %--------------------------------------------------------------------%
